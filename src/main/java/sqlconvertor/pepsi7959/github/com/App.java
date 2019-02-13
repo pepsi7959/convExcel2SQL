@@ -1033,15 +1033,60 @@ public class App
     		
 	}
 
+	/* Owing to missing procedure, Cleansing document master with version 1.4.0, and adding missing procedure */
+	public static void convertForPPoom3() {
+		
+		int sheetId = 3;
+		int beginRow = 1;
+		int beginCell = 0;
+		int rowRange = 0;
+		int cellRange = 3;
+		int fixedCell = 0;
+    		Map<String, LinkedList<String>>  doumentMaster = readDoumentMaster("/Users/narongsak.mala/Documents/GDX/DocumentMaster-V.1.4.0.xlsx", sheetId, beginRow, beginCell, cellRange);
+    		displayDocumentMaster(doumentMaster);
+    		
+
+    		
+		sheetId = 1;
+		beginRow = 2;
+		beginCell = 9;
+		cellRange = 373;
+		Map<String, String>  headerDocumentMap = readHeaderDocument("/Users/narongsak.mala/Documents/GDX/procedureToConvert/FromPPoom-AddNotFound.xlsx", sheetId, beginRow, rowRange, beginCell, cellRange);
+		int i = 0;
+		for(String header: headerDocumentMap.values()) {
+			System.out.println("Header (" + i++ +") : " + header);
+		}
+		
+
+		
+    		sheetId = 1;
+    		beginRow = 3;
+    		rowRange = 8;//317;
+    		fixedCell = cellAddressToInt("I");
+    		beginCell = 0;
+    		cellRange = cellAddressToInt("NU")+1;
+    		ArrayList<LinkedList<String>> listOfProcedures =  convertProcedure(doumentMaster, headerDocumentMap, "/Users/narongsak.mala/Documents/GDX/procedureToConvert/FromPPoom-AddNotFound.xlsx", sheetId, fixedCell, beginRow, rowRange, beginCell, cellRange);
+    		display(listOfProcedures);
+    		
+    		String header[] = {"ประเภทหน่วยงาน", "ชื่อกระทรวง", "ชื่อหน่วยงาน", "ProcedureID", "Procedure Grouping", "ชื่อบริการ/ชื่อกระบวนงาน","ชื่อเล่น","ความถี่","แบบคำขอ", "เลขเอกสาร", "ชื่อเอกสาร", "เจ้าของเอกสาร"};
+    		exportToCSV("/Users/narongsak.mala/Documents/GDX/out/PPoom3.xlsx", listOfProcedures, header);
+    		String metadata = "INSERT INTO [dbo].[GovTech_Publish]([MinistryName], [DepartmentName],[ProcedureID], [ProcedureName], [CitizenGuideDocumentName], [OwnerDocumentOrgName])\n" + "VALUES";
+    		int selectedIndex[] = {0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1};
+    		exportToSQL("/Users/narongsak.mala/Documents/GDX/out/PPoom3.sql", listOfProcedures, metadata, selectedIndex);
+    		System.out.println("Info: Task is complete.");
+    		
+	}
+	
 	/* main */
 	
 	public static void main( String[] args )
     {
 		//convertForPPoom();
-		//convertForPPoom();
+		//convertForPPoom2();
+		convertForPPoom3();
 		//convertForPBoon();
 		//convertForPBee();
-		convertForPBenz();
+		//convertForPBenz();
 		//convertForPPoom2();
 		
     }
